@@ -39,17 +39,13 @@ UPDATE CrimeLA
 SET corrected_location = REPLACE(REPLACE(REPLACE(LOCATION, ' ', '><'), '<>',''), '><', ' ')
 ;
 -- Creating cleaned view
-USE CrimeData
-GO
 
 CREATE VIEW crime_cleaned AS 
 SELECT DR_NO as Record_Number, DATE_OCC, MONTH(DATE_OCC) AS Month, YEAR(DATE_OCC) AS Year, TIME_OCC, AREA, Crm_Cd_Desc, Weapon_Used_Cd, LAT, LON
 FROM CrimeLA;
-GO
+
 
 -- View Types of Crime ALL
-USE CrimeData
-GO
 
 CREATE VIEW crime_types AS 
 SELECT Crm_Cd_Desc, COUNT(Crm_Cd_Desc) AS CrimeTypes
@@ -57,33 +53,19 @@ FROM CrimeLA
 WHERE Crm_Cd_Desc IS NOT NULL
 GROUP BY Crm_Cd_Desc;
 
-GO
-
 -- Areas of Crime
-USE CrimeData
-GO
 
 CREATE VIEW Crime_Areas AS
 SELECT AREA_NAME, COUNT(AREA_NAME) AS Arrests
 FROM CrimeLA
 GROUP BY AREA_NAME;
 
-GO
-
 -- Times of crime bucketed
-
-USE CrimeData
-GO
 
 CREATE VIEW MonthlyArrests AS 
 SELECT MONTH(DATE_OCC) AS Month, YEAR(DATE_OCC) AS Year, COUNT(*) AS CrimeCount
 FROM CrimeLA
-GROUP BY MONTH(DATE_OCC), YEAR(DATE_OCC)
-
-GO
-
-USE CrimeData
-GO
+GROUP BY MONTH(DATE_OCC), YEAR(DATE_OCC);
 
 CREATE VIEW TimeArrests AS 
 SELECT 
@@ -92,11 +74,7 @@ SELECT
 FROM CrimeLA
 GROUP BY DATE_BUCKET(MINUTE, 60, CAST(TIME_OCC AS DATETIME2));
 
-GO
-
 -- Victims View
-USE CrimeData
-GO
 
 CREATE VIEW Victim_Dem AS
 SELECT Vict_Age, Vict_Sex, Vict_Descent, COUNT(*) Total_Victims
@@ -104,12 +82,7 @@ FROM CrimeLA
 GROUP BY Vict_Age, Vict_Sex, Vict_Descent
 ;
 
-GO
-
 -- Further condensing the types of crimes using CASE statements
-
-USE CrimeData
-GO
 
 CREATE VIEW Crime_Categories AS
 SELECT 
@@ -133,10 +106,3 @@ CASE
     WHEN Crm_Cd_Desc LIKE '%VANDALISM%' THEN 'VANDALISM'
     ELSE 'OTHER'
 END;
-
-GO
-
-SELECT Crm_Cd_Desc, COUNT(*)
-FROM CrimeLA
-GROUP BY Crm_Cd_Desc
-ORDER BY COUNT(*) DESC;
